@@ -90,6 +90,8 @@ public class DotsAndLines extends Thread {
                     }
                 }
             }
+            // usuń z listy
+            punktyM[e.x][e.y].remove(e);
         }
     }
 
