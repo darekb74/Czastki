@@ -12,7 +12,6 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.JPanel;
@@ -34,20 +33,15 @@ public class DotsAndLines extends JPanel implements Runnable {
 
     public DotsAndLines(int width, int height, int iloscPunktow, int maksOdleglosc) {
         update = System.currentTimeMillis();
-        this.iloscPunktow = Math.abs(iloscPunktow) > 200 ? 200 : Math.abs(iloscPunktow);
-        this.maksOdleglosc = Math.abs(maksOdleglosc) > 100 ? 100 : Math.abs(maksOdleglosc);
+        this.iloscPunktow = Math.abs(iloscPunktow);
+        this.maksOdleglosc = Math.abs(maksOdleglosc);
         this.width = width;
         this.height = height;
-        punktyM = new ArrayList[width + 1][height + 1];  // nowe listy punktów
-        for (int i = 0; i < iloscPunktow; i++) {
+        for (int i = 0; i < this.iloscPunktow; i++) {
             int x = generator.nextInt(width);
             int y = generator.nextInt(height);
             Punkt p = new Punkt(x, y);
             punkty.add(p); // dodajemy punkt do listy 
-            if (punktyM[x][y] == null) {
-                punktyM[x][y] = new ArrayList<>();
-            }
-            punktyM[x][y].add(p); // dodajemy punty do konkretnej listy w siatce 
         }
 
         MouseAdapter mouseListener = new MouseAdapter() {

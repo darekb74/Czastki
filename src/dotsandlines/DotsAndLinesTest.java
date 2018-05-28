@@ -8,7 +8,6 @@ package dotsandlines;
 import DaL.DotsAndLines;
 import java.awt.Dimension;
 import javax.swing.JFrame;
-import javax.swing.JTextField;
 
 /**
  *
@@ -20,7 +19,7 @@ public class DotsAndLinesTest extends JFrame {
 
     DotsAndLinesTest() {
         setSize(new Dimension(800, 400));
-        jp = new DotsAndLines(784, 360, 100, 100);
+        jp = new DotsAndLines(784, 360, -200, 100);
         jp.setSize(new Dimension(getWidth(), getHeight()));
         add(jp);
         new Thread(jp).start();
