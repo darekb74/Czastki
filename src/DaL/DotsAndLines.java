@@ -9,6 +9,8 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Random;
@@ -27,6 +29,7 @@ public class DotsAndLines extends Thread {
     private Container tablica;
     private long update = 0;
     private Random generator = new Random();
+    private Punkt mysz;
 
     public DotsAndLines(Container tablica, int iloscPunktow, int maksOdleglosc) {
         update = System.currentTimeMillis();
@@ -46,6 +49,32 @@ public class DotsAndLines extends Thread {
             }
             punktyM[x][y].add(p); // dodajemy punty do konkretnej listy w siatce 
         }
+
+        MouseAdapter mouseListener = new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (mysz == null) {
+                    mysz = new Punkt(0, 0);
+                    punkty.add(mysz);
+                }
+                if (e.getX() >= 0 && e.getX() <= width && e.getY() >= 0 && e.getY() <= height) {
+                    mysz.x = e.getX();
+                    mysz.y = e.getY();
+                } else {
+                    punkty.remove(mysz);
+                    mysz = null;
+                }
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                punkty.remove(mysz);
+                mysz = null;
+            }
+        };
+        tablica.addMouseListener(mouseListener);
+        tablica.addMouseMotionListener(mouseListener);
     }
 
     private void ruszajPunkty() {
@@ -56,32 +85,37 @@ public class DotsAndLines extends Thread {
         t.setColor(Color.DARK_GRAY);
         t.fillRect(0, 0, tablica.getWidth(), tablica.getHeight());
         Graphics g = tablica.getGraphics();
-        for (Punkt p : punkty) {
-            p.ruszaj();
-            t.setColor(Color.white);
-            t.fillOval(p.x-2, p.y-2, 4, 4);
+        t.setColor(Color.white);
+        for (Punkt p : (ArrayList<Punkt>) punkty.clone()) {
+            if (!p.equals(mysz)) {
+                p.ruszaj();
+            }
+            t.fillOval(p.x - 2, p.y - 2, 4, 4);
+        }
+        if (mysz != null) {
+            t.fillOval(mysz.x - 2, mysz.y - 2, 4, 4);
         }
         // obiekty ruszone
         przepiszListy();
         // rysuj linie
         rysujLinie(t);
-        
+
         g.drawImage(tlo, 0, 0, tablica);
         t.dispose();
         g.dispose();
     }
 
     private void rysujLinie(Graphics g) {
-        for (Punkt e : punkty) {
+        for (Punkt e : (ArrayList<Punkt>) punkty.clone()) {
             for (int x = (e.x - maksOdleglosc < 0 ? 0 : e.x - maksOdleglosc); x < (e.x + maksOdleglosc > width ? width : e.x + maksOdleglosc); x++) {
                 for (int y = (e.y - maksOdleglosc < 0 ? 0 : e.y - maksOdleglosc); y < (e.y + maksOdleglosc > height ? height : e.y + maksOdleglosc); y++) {
                     if (punktyM[x][y] != null) {
                         for (Punkt el : punktyM[x][y]) {
                             if (!e.equals(el)) {
-                                int dist = (int)Math.hypot(e.x - el.x, e.y - el.y);
+                                int dist = (int) Math.hypot(e.x - el.x, e.y - el.y);
                                 if (dist <= maksOdleglosc) {
                                     // rysuj linię
-                                    float  tmpC = Math.abs(1.0f-(1.0f * (float)dist / (float)maksOdleglosc)); 
+                                    float tmpC = Math.abs(1.0f - (1.0f * (float) dist / (float) maksOdleglosc));
                                     g.setColor(new Color(0.9f, 0.9f, 0.9f, tmpC));
                                     g.drawLine(e.x, e.y, el.x, el.y);
                                 }
@@ -91,7 +125,9 @@ public class DotsAndLines extends Thread {
                 }
             }
             // usuń z listy
-            punktyM[e.x][e.y].remove(e);
+            if (punktyM[e.x][e.y] != null) {
+                punktyM[e.x][e.y].remove(e);
+            }
         }
     }
 
@@ -105,13 +141,14 @@ public class DotsAndLines extends Thread {
             }
             punktyM[x][y].add(e); // dodajemy punty do konkretnej listy 
         }
+
     }
 
     @Override
     public void run() {
         while (true) {
             long cTime = System.currentTimeMillis();
-            if (update + 50 < cTime) {
+            if (update + 30 < cTime) {
                 ruszajPunkty();
                 update = cTime;
 
@@ -125,8 +162,8 @@ public class DotsAndLines extends Thread {
 
         public Punkt(int x, int y) {
             super(x, y);
-            wektorRuchu = new Point((1 + generator.nextInt(2)) * (generator.nextBoolean() ? 1 : -1),
-                    (1 + generator.nextInt(2)) * (generator.nextBoolean() ? 1 : -1));
+            wektorRuchu = new Point((1 + generator.nextInt(3)) * (generator.nextBoolean() ? 1 : -1),
+                    (1 + generator.nextInt(3)) * (generator.nextBoolean() ? 1 : -1));
         }
 
         public void ruszaj() {
