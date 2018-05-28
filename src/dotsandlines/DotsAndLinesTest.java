@@ -7,7 +7,9 @@ package dotsandlines;
 
 import DaL.DotsAndLines;
 import java.awt.Dimension;
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 /**
  *
@@ -15,14 +17,18 @@ import javax.swing.JFrame;
  */
 public class DotsAndLinesTest extends JFrame {
 
-    private DotsAndLines jp;
-
     DotsAndLinesTest() {
-        setSize(new Dimension(800, 400));
-        jp = new DotsAndLines(784, 360, -200, 100);
+        JPanel p = new JPanel();
+        this.add(p);
+        setSize(new Dimension(800, 800));
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        DotsAndLines jp = new DotsAndLines(784, 360, 100, 100);
+        DotsAndLines djp = new DotsAndLines(784, 360, 500, 70);
         jp.setSize(new Dimension(getWidth(), getHeight()));
-        add(jp);
+        p.add(jp);
+        p.add(djp);
         new Thread(jp).start();
+        new Thread(djp).start();
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setVisible(true);
     }
