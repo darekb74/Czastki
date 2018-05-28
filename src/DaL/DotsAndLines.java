@@ -6,39 +6,38 @@
 package DaL;
 
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Random;
+import javax.swing.JPanel;
 
 /**
  *
  * @author Darek Xperia
  */
-public class DotsAndLines extends Thread {
+public class DotsAndLines extends JPanel implements Runnable {
 
     private ArrayList<Punkt>[][] punktyM;
     private ArrayList<Punkt> punkty = new ArrayList<>();
     private int iloscPunktow;
     private int maksOdleglosc;
     private int width, height;
-    private Container tablica;
     private long update = 0;
     private Random generator = new Random();
     private Punkt mysz;
-    //private long dT;
 
-    public DotsAndLines(Container tablica, int iloscPunktow, int maksOdleglosc) {
+    public DotsAndLines(int width, int height, int iloscPunktow, int maksOdleglosc) {
         update = System.currentTimeMillis();
-        this.tablica = tablica;
         this.iloscPunktow = Math.abs(iloscPunktow) > 200 ? 200 : Math.abs(iloscPunktow);
         this.maksOdleglosc = Math.abs(maksOdleglosc) > 100 ? 100 : Math.abs(maksOdleglosc);
-        this.width = tablica.getWidth();
-        this.height = tablica.getHeight();
+        this.width = width;
+        this.height = height;
         punktyM = new ArrayList[width + 1][height + 1];  // nowe listy punktów
         for (int i = 0; i < iloscPunktow; i++) {
             int x = generator.nextInt(width);
@@ -74,42 +73,41 @@ public class DotsAndLines extends Thread {
                 mysz = null;
             }
         };
-        tablica.addMouseListener(mouseListener);
-        tablica.addMouseMotionListener(mouseListener);
+        addMouseListener(mouseListener);
+        addMouseMotionListener(mouseListener);
     }
 
-    private void ruszajPunkty() {
-        //dT = System.currentTimeMillis();
-        BufferedImage tlo = new BufferedImage(tablica.getWidth(), tablica.getHeight(),
-                BufferedImage.TYPE_INT_ARGB);
-        //tablica.getParent().repaint();
-        Graphics t = tlo.getGraphics();
-        t.setColor(Color.DARK_GRAY);
-        t.fillRect(0, 0, tablica.getWidth(), tablica.getHeight());
-        Graphics g = tablica.getGraphics();
-        t.setColor(Color.white);
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        ruszajPunkty((Graphics2D) g);
+    }
+
+    private void ruszajPunkty(Graphics2D g) {
+        //long dT = System.currentTimeMillis();
+        g.setColor(Color.DARK_GRAY);
+        g.fillRect(0, 0, getWidth(), getHeight());
+        g.setColor(Color.white);
         for (Punkt p : (ArrayList<Punkt>) punkty.clone()) {
             if (!p.equals(mysz)) {
                 p.ruszaj();
             }
-            t.fillOval(p.x - 2, p.y - 2, 4, 4);
+            g.fillOval(p.x - 2, p.y - 2, 4, 4);
         }
         if (mysz != null) {
-            t.fillOval(mysz.x - 2, mysz.y - 2, 4, 4);
+            g.fillOval(mysz.x - 2, mysz.y - 2, 4, 4);
         }
         // obiekty ruszone
         przepiszListy();
         // rysuj linie
-        rysujLinie(t);
-
-        g.drawImage(tlo, 0, 0, tablica);
-        t.dispose();
+        rysujLinie(g);
         g.dispose();
         //dT = System.currentTimeMillis() - dT;
         //System.out.println(dT);
     }
 
-    private void rysujLinie(Graphics g) {
+    private void rysujLinie(Graphics2D g) {
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         for (Punkt e : (ArrayList<Punkt>) punkty.clone()) {
             for (int x = (e.x / maksOdleglosc - 1 < 0 ? 0 : e.x / maksOdleglosc - 1); x <= (e.x / maksOdleglosc + 1 > width / maksOdleglosc ? width / maksOdleglosc : e.x / maksOdleglosc + 1); x++) {
                 for (int y = (e.y / maksOdleglosc - 1 < 0 ? 0 : e.y / maksOdleglosc - 1); y <= (e.y / maksOdleglosc + 1 > height / maksOdleglosc ? height / maksOdleglosc : e.y / maksOdleglosc + 1); y++) {
@@ -152,9 +150,8 @@ public class DotsAndLines extends Thread {
         while (true) {
             long cTime = System.currentTimeMillis();
             if (update + 30 < cTime) {
-                ruszajPunkty();
+                repaint();
                 update = cTime;
-
             }
         }
     }

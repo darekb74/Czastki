@@ -8,7 +8,7 @@ package dotsandlines;
 import DaL.DotsAndLines;
 import java.awt.Dimension;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 /**
  *
@@ -16,19 +16,16 @@ import javax.swing.JPanel;
  */
 public class DotsAndLinesTest extends JFrame {
 
-    /**
-     * @param args the command line arguments
-     */
+    private DotsAndLines jp;
+
     DotsAndLinesTest() {
         setSize(new Dimension(800, 400));
-        JPanel jp = new JPanel();
+        jp = new DotsAndLines(784, 360, 100, 100);
         jp.setSize(new Dimension(getWidth(), getHeight()));
         add(jp);
+        new Thread(jp).start();
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setVisible(true);
-
-        DotsAndLines anim = new DotsAndLines(jp, 100, 100);
-        anim.start();
     }
 
     public static void main(String[] args) {
