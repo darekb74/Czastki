@@ -30,6 +30,7 @@ public class DotsAndLines extends Thread {
     private long update = 0;
     private Random generator = new Random();
     private Punkt mysz;
+    //private long dT;
 
     public DotsAndLines(Container tablica, int iloscPunktow, int maksOdleglosc) {
         update = System.currentTimeMillis();
@@ -78,6 +79,7 @@ public class DotsAndLines extends Thread {
     }
 
     private void ruszajPunkty() {
+        //dT = System.currentTimeMillis();
         BufferedImage tlo = new BufferedImage(tablica.getWidth(), tablica.getHeight(),
                 BufferedImage.TYPE_INT_ARGB);
         //tablica.getParent().repaint();
@@ -103,12 +105,14 @@ public class DotsAndLines extends Thread {
         g.drawImage(tlo, 0, 0, tablica);
         t.dispose();
         g.dispose();
+        //dT = System.currentTimeMillis() - dT;
+        //System.out.println(dT);
     }
 
     private void rysujLinie(Graphics g) {
         for (Punkt e : (ArrayList<Punkt>) punkty.clone()) {
-            for (int x = (e.x - maksOdleglosc < 0 ? 0 : e.x - maksOdleglosc); x < (e.x + maksOdleglosc > width ? width : e.x + maksOdleglosc); x++) {
-                for (int y = (e.y - maksOdleglosc < 0 ? 0 : e.y - maksOdleglosc); y < (e.y + maksOdleglosc > height ? height : e.y + maksOdleglosc); y++) {
+            for (int x = (e.x / maksOdleglosc - 1 < 0 ? 0 : e.x / maksOdleglosc - 1); x <= (e.x / maksOdleglosc + 1 > width / maksOdleglosc ? width / maksOdleglosc : e.x / maksOdleglosc + 1); x++) {
+                for (int y = (e.y / maksOdleglosc - 1 < 0 ? 0 : e.y / maksOdleglosc - 1); y <= (e.y / maksOdleglosc + 1 > height / maksOdleglosc ? height / maksOdleglosc : e.y / maksOdleglosc + 1); y++) {
                     if (punktyM[x][y] != null) {
                         for (Punkt el : punktyM[x][y]) {
                             if (!e.equals(el)) {
@@ -125,23 +129,22 @@ public class DotsAndLines extends Thread {
                 }
             }
             // usuń z listy
-            if (punktyM[e.x][e.y] != null) {
-                punktyM[e.x][e.y].remove(e);
+            if (punktyM[e.x / maksOdleglosc][e.y / maksOdleglosc] != null) {
+                punktyM[e.x / maksOdleglosc][e.y / maksOdleglosc].remove(e);
             }
         }
     }
 
     private void przepiszListy() {
-        punktyM = new ArrayList[width + 1][height + 1];  // nowe listy punktów
+        punktyM = new ArrayList[width / maksOdleglosc + 1][height / maksOdleglosc + 1];  // nowe listy punktów
         for (Punkt e : punkty) {
-            int x = (int) e.getX();
-            int y = (int) e.getY();
+            int x = (int) e.getX() / maksOdleglosc;
+            int y = (int) e.getY() / maksOdleglosc;
             if (punktyM[x][y] == null) {
                 punktyM[x][y] = new ArrayList<>();
             }
             punktyM[x][y].add(e); // dodajemy punty do konkretnej listy 
         }
-
     }
 
     @Override
